@@ -157,8 +157,8 @@ static void __shift_up(avltree_t* me, int idx, int towards)
 
 static void __shift_down(avltree_t* me, int idx, int towards)
 {
-  if (!me->nodes[idx].key || idx >= me->size)
-    return;
+  if (idx >= me->size || towards >= me->size) return;
+  if (!me->nodes[idx].key)    return;
 
   __shift_down(me, __child_l(idx), __child_l(towards));
   __shift_down(me, __child_r(idx), __child_r(towards));
@@ -175,12 +175,13 @@ void avltree_rotate_right(avltree_t* me, int idx)
    * Move X out of the way so that Y can take its spot */
   __shift_down(me, __child_r(idx), __child_r(__child_r(idx)));
   memcpy(&me->nodes[__child_r(idx)], &me->nodes[idx], sizeof(node_t));
-//  if (me->shift_up_callback)
-//    me->shift_up_callback( idx, __child_r(idx), me->shift_up_callback_user);
+  if (me->shift_up_callback)
+    me->shift_up_callback( idx, __child_r(idx), me->shift_up_callback_user);
   /* B */
-  __shift_down(me, __child_r(__child_l(idx)), __child_l(__child_r(idx)));
-  me->nodes[__child_r(__child_l(idx))].key = NULL;
-
+  if ( __child_r(__child_l(idx)) < me->size) {
+    __shift_down(me, __child_r(__child_l(idx)), __child_l(__child_r(idx)));
+    me->nodes[__child_r(__child_l(idx))].key = NULL;
+  }
   /* A Final
    * Move Y into X's old spot */
   __shift_up(me, __child_l(idx), idx);

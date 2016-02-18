@@ -64,6 +64,43 @@ static long cmp_range(const void *e1, const void *e2)
   }
 }
 
+
+static void __enlarge(interval_tree_t* me)
+{
+  int ii, end;
+  interval_node_t *array_nodes;
+  int *array_perms;
+  int prev_node;
+  avltree_iterator_t iter;
+  node_t *n;
+
+  /* double capacity */
+  array_nodes = calloc(me->size * 2, sizeof(interval_node_t));
+  array_perms = calloc(me->size * 2, sizeof(int));
+
+  /* copy old data across to new array */
+  for (ii = 0, end = me->size; ii < end; ii++) {
+    memcpy(&array_nodes[ii], &me->nodes[ii], sizeof(interval_node_t));
+    memcpy(&array_perms[ii], &me->nodes_perm[ii], sizeof(int));
+  }
+
+  /* Update the references  to the key in this module ... Not the most efficient aspect */
+  avltree_iterator(me->tree, &iter);
+  prev_node = iter.current_node;
+  while ( (n = avltree_iterator_next(me->tree, &iter)) && prev_node != iter.current_node) {
+    n->key = &(array_nodes[array_perms[prev_node]].range);
+    prev_node = iter.current_node;
+  }
+
+  /* swap arrays */
+  free(me->nodes);
+  free(me->nodes_perm);
+  me->nodes      = array_nodes;
+  me->nodes_perm = array_perms;
+  me->size *= 2;
+}
+
+
 static void up_rebalance(int idx, int towards, void *user)
 {
   interval_tree_t* me = (interval_tree_t*)user;
@@ -106,40 +143,6 @@ static void down_rebalance(int idx, int towards, void *user)
   me->nodes_perm[towards] = me->nodes_perm[idx];
 }
 
-static void __enlarge(interval_tree_t* me)
-{
-  int ii, end;
-  interval_node_t *array_nodes;
-  int *array_perms;
-  int prev_node;
-  avltree_iterator_t iter;
-  node_t *n;
-
-  /* double capacity */
-  array_nodes = calloc(me->size * 2, sizeof(interval_node_t));
-  array_perms = calloc(me->size * 2, sizeof(int));
-
-  /* copy old data across to new array */
-  for (ii = 0, end = me->size; ii < end; ii++) {
-    memcpy(&array_nodes[ii], &me->nodes[ii], sizeof(interval_node_t));
-    memcpy(&array_perms[ii], &me->nodes_perm[ii], sizeof(int));
-  }
-
-  /* Update the references  to the key in this module ... Not the most efficient aspect */
-  avltree_iterator(me->tree, &iter);
-  prev_node = iter.current_node;
-  while ( (n = avltree_iterator_next(me->tree, &iter)) && prev_node != iter.current_node) {
-    n->key = &(array_nodes[array_perms[prev_node]].range);
-    prev_node = iter.current_node;
-  }
-
-  /* swap arrays */
-  free(me->nodes);
-  free(me->nodes_perm);
-  me->nodes      = array_nodes;
-  me->nodes_perm = array_perms;
-  me->size *= 2;
-}
 
 interval_tree_t* interval_tree_new(int initial_size)
 {
