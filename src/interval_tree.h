@@ -64,4 +64,11 @@ void interval_tree_insert(interval_tree_t* me, struct _range_t *r, void *v);
  */
 void *interval_tree_query(interval_tree_t* me, int k);
 
+/**
+ * @brief Print the current tree in a fashionable manner.
+ *
+ * @param me  A interval tree that has been previously allocated by a call to interval_tree_new.
+ */
+void interval_tree_print(interval_tree_t* me);
+
 #endif

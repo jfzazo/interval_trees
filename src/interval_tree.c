@@ -225,7 +225,6 @@ void *interval_tree_query(interval_tree_t* me, int k)
 
     //2) If left child of root is not empty and the max  in left child
     // is greater than x's low value, recur for left child
-    // printf("Accedo a %d perm %d\n", __child_l(i), me->nodes_perm[__child_l(i)] );
     if (avltree_get_from_idx(me->tree, __child_l(i)) && me->nodes[me->nodes_perm[__child_l(i)]].max >= k ) {
       i = __child_l(i);
     } else { // 3) Else recur for right child.
@@ -235,4 +234,29 @@ void *interval_tree_query(interval_tree_t* me, int k)
 
   /* couldn't find it */
   return NULL;
+}
+
+
+
+static void __print(interval_tree_t* me, int idx, int d)
+{
+  int i;
+
+  for (i = 0; i < d; i++)
+    printf(" ");
+  printf("%c: ", idx % 2 == 1 ? 'l' : 'r');
+
+  if (me->size <= idx || !avltree_get_from_idx(me->tree, idx) || !(&(me->nodes[me->nodes_perm[i]].range))) {
+    printf("-\n");
+    return;
+  }
+
+  printf("Range [%ld-%ld]. Max %ld\n", me->nodes[me->nodes_perm[idx]].range.inf, me->nodes[me->nodes_perm[idx]].range.sup, me->nodes[me->nodes_perm[idx]].max);
+  __print(me, __child_l(idx), d + 1);
+  __print(me, __child_r(idx), d + 1);
+}
+
+void interval_tree_print(interval_tree_t* me)
+{
+  __print(me, 0, 0);
 }
