@@ -87,7 +87,7 @@ static void __enlarge(interval_tree_t* me)
   /* Update the references  to the key in this module ... Not the most efficient aspect */
   avltree_iterator(me->tree, &iter);
   prev_node = iter.current_node;
-  while ( (n = avltree_iterator_next(me->tree, &iter)) && prev_node != iter.current_node) {
+  while ( (n = avltree_iterator_next(me->tree, &iter)) && prev_node != iter.current_node && prev_node < me->size) {
     n->key = &(array_nodes[array_perms[prev_node]].range);
     prev_node = iter.current_node;
   }
