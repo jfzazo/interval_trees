@@ -65,6 +65,19 @@ void interval_tree_insert(interval_tree_t* me, struct _range_t *r, void *v);
 void *interval_tree_query(interval_tree_t* me, int k);
 
 /**
+ * @brief Given an integer, check for all the occurences in the ranges that conform the tree
+ *
+ * @param me  A interval tree that has been previously allocated by a call to interval_tree_new.
+ * @param k The integer to search.
+ *
+ * @return An array with all the values associated to the ranges that matched the key, NULL if no occurence has appeared.
+ * For instance, if the tree is composed by the ranges [0,20] with value v1, [10.30] with value v2,
+ * the return of the function will be:
+ *    {v0,v1,NULL}
+ */
+void **interval_tree_multiple_query(interval_tree_t* me, int k);
+
+/**
  * @brief Print the current tree in a fashionable manner.
  *
  * @param me  A interval tree that has been previously allocated by a call to interval_tree_new.
