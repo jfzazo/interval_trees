@@ -264,10 +264,19 @@ static void __rebalance(avltree_t* me, int idx)
 {
 
   while (1) {
-    if (2 <= abs(
-          __height(me, __child_l(idx)) -
-          __height(me, __child_r(idx)))) {
-      /*  balance factor left node */
+    if (2 <= __height(me, __child_l(idx)) - __height(me, __child_r(idx))) {
+      int bf_l;
+
+      bf_l = __height(me, __child_l(__child_l(idx))) -
+             __height(me, __child_r(__child_l(idx)));
+
+      if (bf_l == -1) {
+        avltree_rotate_left(me, __child_l(idx));
+        avltree_rotate_right(me, __child_l(idx));
+      } else {
+        avltree_rotate_right(me, __child_l(idx));
+      }
+    }  else if (-2 >= __height(me, __child_l(idx)) - __height(me, __child_r(idx))) {
       int bf_r;
 
       bf_r = __height(me, __child_l(__child_r(idx))) -
@@ -276,11 +285,10 @@ static void __rebalance(avltree_t* me, int idx)
       if (bf_r == -1) {
         avltree_rotate_left(me, __child_r(idx));
       } else {
-        avltree_rotate_left(me, __child_r(idx));
         avltree_rotate_right(me, __child_r(idx));
+        avltree_rotate_left(me, __child_r(idx));
       }
     }
-
     if (0 == idx) break;
     idx = __parent(idx);
   }
@@ -455,29 +463,6 @@ void *avltree_iterator_next(avltree_t * h, avltree_iterator_t * iter)
     if (next->key)
       break;
   }
-#if 0
-  while (1) {
-    next_id = __child_l(iter->current_node)
-              next = &h->nodes[next_id];
-    if (!next->key) {
-      next_id = __child_r(iter->current_node)
-                next = &h->nodes[next_id];
-      if (!next->key) {
-        int descendant;
-
-        parent = __parent(iter->current_node);
-        next_id = __parent(iter->current_node)
-        while (__child_r(next_id) == parent) {
-          parent = __parent(iter->current_node);
-          next_id = __parent(iter->current_node)
-                    next_id = __child_r(next_id)
-                              next = &h->nodes[next_id];
-        }
-
-      }
-    }
-  }
-#endif
 
   return n;
 }
