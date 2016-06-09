@@ -212,9 +212,13 @@ void *interval_tree_query(interval_tree_t* me, int k)
   for (i = 0; i < me->size; ) {
     range_t * r;
 
-    r = &(me->nodes[me->nodes_perm[i]].range); // avltree_get_from_idx(me->tree, i);
+    r =  avltree_get_from_idx(me->tree, i);//&(me->nodes[me->nodes_perm[i]].range); // avltree_get_from_idx(me->tree, i);
     /* couldn't find it */
     if (r == NULL) {
+      return NULL;
+    }
+
+    if (me->nodes[me->nodes_perm[i]].max < k) {
       return NULL;
     }
 
